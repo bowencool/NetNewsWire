@@ -18,8 +18,7 @@ let package = Package(
 			dependencies: ["Tidemark"],
 			swiftSettings: [
 				.enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-				.enableUpcomingFeature("InferIsolatedConformances"),
-				.unsafeFlags(["-warnings-as-errors"])
+				.enableUpcomingFeature("InferIsolatedConformances")
 			]
 		),
         .testTarget(
