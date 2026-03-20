@@ -42,24 +42,16 @@ final class AddFolderWindowController: NSWindowController {
 	override func windowDidLoad() {
 		super.windowDidLoad()
 
-		let preferredAccountID = AppDefaults.shared.addFolderAccountID
 		accountPopupButton.removeAllItems()
 
 		let menu = NSMenu()
 		accountPopupButton.menu = menu
 
-		let sortedAccounts: [Account] = AccountManager.shared.sortedActiveAccounts
-		let accounts = folderManageableAccounts(from: sortedAccounts)
-
-		for oneAccount in accounts {
-
-			let oneMenuItem = NSMenuItem()
-			oneMenuItem.title = oneAccount.nameForDisplay
-			oneMenuItem.representedObject = oneAccount
-			menu.addItem(oneMenuItem)
-
-			if oneAccount.accountID == preferredAccountID {
-				accountPopupButton.select(oneMenuItem)
+		let preferredAccountID = AppDefaults.shared.addFolderAccountID
+		for account in allowedAccountsForFolderCreation() {
+			let menuItem = addMenuItem(to: menu, for: account)
+			if account.accountID == preferredAccountID {
+				accountPopupButton.select(menuItem)
 			}
 		}
 	}
@@ -100,17 +92,19 @@ extension AddFolderWindowController: NSTextFieldDelegate {
 
 private extension AddFolderWindowController {
 
-	func folderManageableAccounts(from accounts: [Account]) -> [Account] {
-		var results = [Account]()
-		results.reserveCapacity(accounts.count)
-
-		for account in accounts {
-			if !account.behaviors.contains(.disallowFolderManagement) {
-				results.append(account)
-			}
+	func allowedAccountsForFolderCreation() -> [Account] {
+		AccountManager.shared.sortedActiveAccounts.filter { account in
+			!account.behaviors.contains(.disallowFolderManagement)
 		}
+	}
 
-		return results
+	@discardableResult
+	func addMenuItem(to menu: NSMenu, for account: Account) -> NSMenuItem {
+		let menuItem = NSMenuItem()
+		menuItem.title = account.nameForDisplay
+		menuItem.representedObject = account
+		menu.addItem(menuItem)
+		return menuItem
 	}
 
 	private func addFolderIfNeeded() {

@@ -644,7 +644,6 @@ extension MainWindowController: SidebarDelegate {
 			timelineContainerViewController?.setRepresentedObjects(selectedObjects, mode: .regular)
 			forceSearchToEnd()
 		}
-		syncSidebarReadArticlesFilter()
 		updateWindowTitle()
 		NotificationCenter.default.post(name: .InspectableObjectsDidChange, object: nil)
 	}
@@ -703,7 +702,6 @@ extension MainWindowController: TimelineContainerViewControllerDelegate {
 	}
 
 	func timelineInvalidatedRestorationState(_: TimelineContainerViewController) {
-		syncSidebarReadArticlesFilter()
 		invalidateRestorableState()
 	}
 
@@ -1137,7 +1135,7 @@ private extension MainWindowController {
 	// MARK: - Command Validation
 
 	func syncSidebarReadArticlesFilter() {
-		let isReadArticlesFiltered = timelineContainerViewController?.isReadFiltered ?? false
+		let isReadArticlesFiltered = AppDefaults.shared.timelineReadFilterEnabled ?? false
 		sidebarViewController?.setReadArticlesFilterEnabled(isReadArticlesFiltered)
 	}
 
