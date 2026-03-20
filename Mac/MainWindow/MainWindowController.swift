@@ -599,6 +599,7 @@ final class MainWindowController: NSWindowController, NSUserInterfaceValidations
 
 	@IBAction func toggleReadArticlesFilter(_ sender: Any?) {
 		timelineContainerViewController?.toggleReadFilter()
+		syncSidebarReadArticlesFilter()
 	}
 
 	@objc func selectArticleTheme(_ menuItem: NSMenuItem) {
@@ -643,6 +644,7 @@ extension MainWindowController: SidebarDelegate {
 			timelineContainerViewController?.setRepresentedObjects(selectedObjects, mode: .regular)
 			forceSearchToEnd()
 		}
+		syncSidebarReadArticlesFilter()
 		updateWindowTitle()
 		NotificationCenter.default.post(name: .InspectableObjectsDidChange, object: nil)
 	}
@@ -701,6 +703,7 @@ extension MainWindowController: TimelineContainerViewControllerDelegate {
 	}
 
 	func timelineInvalidatedRestorationState(_: TimelineContainerViewController) {
+		syncSidebarReadArticlesFilter()
 		invalidateRestorableState()
 	}
 
@@ -1095,6 +1098,7 @@ private extension MainWindowController {
 		sidebarViewController?.restoreState(from: state.sidebarWindowState)
 
 		timelineContainerViewController?.restoreState(from: state.timelineWindowState)
+		syncSidebarReadArticlesFilter()
 		restoreArticleWindowScrollY = state.detailWindowState?.windowScrollY
 
 		let isShowingExtractedArticle = state.detailWindowState?.isShowingExtractedArticle ?? false
@@ -1121,6 +1125,7 @@ private extension MainWindowController {
 		let articleWindowScrollY = state[UserInfoKey.articleWindowScrollY] as? CGFloat
 		restoreArticleWindowScrollY = articleWindowScrollY
 		timelineContainerViewController?.restoreLegacyState(from: state)
+		syncSidebarReadArticlesFilter()
 
 		let isShowingExtractedArticle = state[UserInfoKey.isShowingExtractedArticle] as? Bool ?? false
 		if isShowingExtractedArticle {
@@ -1130,6 +1135,11 @@ private extension MainWindowController {
 	}
 
 	// MARK: - Command Validation
+
+	func syncSidebarReadArticlesFilter() {
+		let isReadArticlesFiltered = timelineContainerViewController?.isReadFiltered ?? false
+		sidebarViewController?.setReadArticlesFilterEnabled(isReadArticlesFiltered)
+	}
 
 	func canCopyArticleURL() -> Bool {
 		guard let selectedArticles else {
